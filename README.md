@@ -43,7 +43,7 @@ git clone git@github.com:Abyss-Seeker/Room-Designer.git
 Run the main script to start Room Designer:
 
 ```bash
-python room_designer.py
+python RoomDesigner.py
 ```
 
 ## Controls
