@@ -285,6 +285,10 @@ def main():
     width_collected = False
     new_width, new_height = None, None
 
+    # Variables to track long press
+    long_press_timer = 0
+    long_press_threshold = 500  # Adjust as needed (milliseconds)
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -447,6 +451,29 @@ def main():
                     if shift_held:
                         offset_x += event.rel[0]
                         offset_y += event.rel[1]
+
+            # New event handling for filling cells with placing_value on long press
+            if event.type == pygame.MOUSEMOTION:
+                if event.buttons[0] and not shift_held:  # Left click without shift held
+                    x, y = event.pos
+                    col = int((x - offset_x) / (CELL_SIZE * zoom))
+                    row = int((y - offset_y) / (CELL_SIZE * zoom))
+                    if 0 <= col < cols and 0 <= row < rows:
+                        # Update the cell with placing_value
+                        grid[row][col] = placing_value
+                        long_press_timer += pygame.time.get_ticks() - long_press_timer
+                        if long_press_timer > long_press_threshold:
+                            # Fill cells as cursor moves
+                            while pygame.mouse.get_pressed()[0] and not shift_held:
+                                pygame.event.get()  # Clear event queue
+                                x, y = pygame.mouse.get_pos()
+                                col = int((x - offset_x) / (CELL_SIZE * zoom))
+                                row = int((y - offset_y) / (CELL_SIZE * zoom))
+                                if 0 <= col < cols and 0 <= row < rows:
+                                    grid[row][col] = placing_value
+                                draw_grid()  # Draw grid with updates
+                                pygame.display.flip()  # Update display
+                            long_press_timer = 0  # Reset long press timer
 
         screen.fill(BG_COLOR)
         draw_grid()
